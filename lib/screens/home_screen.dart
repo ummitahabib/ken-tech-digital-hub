@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ken_tech_digital_hub/theme/app_theme.dart';
+import '../widgets/navbar.dart';
+import '../widgets/hero_section.dart';
+import '../widgets/sections.dart';
+import 'package:flutter/material.dart';
 import '../widgets/navbar.dart';
 import '../widgets/hero_section.dart';
 import '../widgets/sections.dart';
@@ -87,15 +92,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.darkBg, // ← matches hero background, kills white flash
       body: Stack(
         children: [
           SingleChildScrollView(
             controller: _scroll,
             child: Column(
               children: [
-                const SizedBox(height: 74), // navbar clearance
-
-                // ── Hero ─────────────────────────────────────────────────
+                // ── Hero (handles navbar offset via its own top padding) ──
                 HeroSection(key: homeKey, onCtaPressed: () => _scrollTo(contactKey)),
 
                 // ── Partners ─────────────────────────────────────────────

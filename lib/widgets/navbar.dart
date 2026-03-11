@@ -22,6 +22,10 @@ class _AppNavbarState extends State<AppNavbar> {
   bool _scrolled = false;
   bool _mobileMenuOpen = false;
 
+  static const _navItems = [
+    'Home', 'Services', 'Work', 'About', 'Blog', 'Contact',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -39,15 +43,6 @@ class _AppNavbarState extends State<AppNavbar> {
     super.dispose();
   }
 
-  static const _navItems = [
-    'Home',
-    'Services',
-    'Work',
-    'About',
-    'Blog',
-    'Contact',
-  ];
-
   void _handleTap(String section) {
     widget.onNavTap(section);
     if (_mobileMenuOpen) setState(() => _mobileMenuOpen = false);
@@ -56,8 +51,9 @@ class _AppNavbarState extends State<AppNavbar> {
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    final isWide = w > 900;
-    final hPad = isWide ? 80.0 : 20.0;
+    final isWide = w > 1024;
+    final isMedium = w > 700;
+    final hPad = isWide ? 80.0 : (isMedium ? 40.0 : 20.0);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -66,50 +62,55 @@ class _AppNavbarState extends State<AppNavbar> {
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           decoration: BoxDecoration(
-            color: (_scrolled || _mobileMenuOpen)
+            // Always dark — transparent only over the hero's dark bg,
+            // solid dark once scrolled or mobile menu is open
+            color: _scrolled || _mobileMenuOpen
                 ? AppTheme.darkBg.withOpacity(0.97)
-                : Colors.transparent,
+                : AppTheme.darkBg.withOpacity(0.6),
             boxShadow: _scrolled
                 ? [BoxShadow(
-                    color: Colors.black.withOpacity(0.4),
-                    blurRadius: 30,
-                    offset: const Offset(0, 4),
+                    color: Colors.black.withOpacity(0.5),
+                    blurRadius: 24,
+                    offset: const Offset(0, 2),
                   )]
                 : [],
-            border: (_scrolled || _mobileMenuOpen)
-                ? Border(
-                    bottom: BorderSide(
-                      color: AppTheme.darkCardBorder.withOpacity(0.5),
-                      width: 1,
-                    ),
-                  )
-                : const Border(bottom: BorderSide(color: Colors.transparent)),
+            border: Border(
+              bottom: BorderSide(
+                color: _scrolled
+                    ? AppTheme.darkCardBorder.withOpacity(0.6)
+                    : Colors.transparent,
+              ),
+            ),
           ),
-          padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 18),
+          padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 16),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Logo — tapping scrolls to top
+              // ── Logo (always visible, no overflow) ──────────────────
               GestureDetector(
                 onTap: () => _handleTap('Home'),
-                child: const _Logo(),
+                child: _Logo(compact: !isMedium),
               ),
-              const Spacer(),
+
+              // ── Nav items (desktop) ──────────────────────────────────
               if (isWide) ...[
-                ..._navItems.map(
-                  (label) => _NavItem(
-                    label: label,
-                    isActive: widget.activeSection == label,
-                    onTap: () => _handleTap(label),
-                  ),
-                ),
-                const SizedBox(width: 28),
+                const Spacer(),
+                ..._navItems.map((label) => _NavItem(
+                      label: label,
+                      isActive: widget.activeSection == label,
+                      onTap: () => _handleTap(label),
+                    )),
+                const SizedBox(width: 24),
                 _CtaButton(
                   label: 'Get Free Consultation',
                   onTap: () => _handleTap('Contact'),
                 ),
-              ] else
-                IconButton(
-                  icon: AnimatedSwitcher(
+              ] else ...[
+                const Spacer(),
+                // Hamburger / close
+                GestureDetector(
+                  onTap: () => setState(() => _mobileMenuOpen = !_mobileMenuOpen),
+                  child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: Icon(
                       _mobileMenuOpen ? Icons.close_rounded : Icons.menu_rounded,
@@ -118,21 +119,20 @@ class _AppNavbarState extends State<AppNavbar> {
                       size: 26,
                     ),
                   ),
-                  onPressed: () => setState(() => _mobileMenuOpen = !_mobileMenuOpen),
                 ),
+              ],
             ],
           ),
         ),
 
         // ── Mobile drawer ─────────────────────────────────────────────────
         if (!isWide && _mobileMenuOpen)
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
+          Container(
             width: double.infinity,
             decoration: BoxDecoration(
               color: AppTheme.darkBg.withOpacity(0.98),
               border: Border(
-                bottom: BorderSide(color: AppTheme.darkCardBorder.withOpacity(0.6)),
+                bottom: BorderSide(color: AppTheme.darkCardBorder.withOpacity(0.5)),
               ),
               boxShadow: [
                 BoxShadow(
@@ -146,22 +146,18 @@ class _AppNavbarState extends State<AppNavbar> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Divider(color: AppTheme.darkCardBorder, height: 1),
+                Divider(color: AppTheme.darkCardBorder.withOpacity(0.4), height: 1),
+                const SizedBox(height: 8),
+                ..._navItems.map((label) => _MobileNavItem(
+                      label: label,
+                      isActive: widget.activeSection == label,
+                      onTap: () => _handleTap(label),
+                    )),
                 const SizedBox(height: 16),
-                ..._navItems.map(
-                  (label) => _MobileNavItem(
-                    label: label,
-                    isActive: widget.activeSection == label,
-                    onTap: () => _handleTap(label),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: _CtaButton(
-                    label: 'Get Free Consultation',
-                    onTap: () => _handleTap('Contact'),
-                  ),
+                _CtaButton(
+                  label: 'Get Free Consultation',
+                  onTap: () => _handleTap('Contact'),
+                  fullWidth: true,
                 ),
               ],
             ),
@@ -173,23 +169,25 @@ class _AppNavbarState extends State<AppNavbar> {
 
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 class _Logo extends StatelessWidget {
-  const _Logo();
+  final bool compact;
+  const _Logo({this.compact = false});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // KD badge
         Container(
-          width: 38,
-          height: 38,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [AppTheme.accent, AppTheme.accentAlt],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(9),
           ),
           child: const Center(
             child: Text(
@@ -197,34 +195,40 @@ class _Logo extends StatelessWidget {
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
-                fontSize: 14,
+                fontSize: 13,
+                letterSpacing: 0.5,
               ),
             ),
           ),
         ),
-        const SizedBox(width: 10),
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: 'Ken Digital',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
+        if (!compact) ...[
+          const SizedBox(width: 10),
+          // Two-part logo text — overflow safe
+          RichText(
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Ken Digital',
+                  style: GoogleFonts.spaceGrotesk(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              TextSpan(
-                text: ' Tech Hub',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w400,
-                  color: AppTheme.accent,
+                TextSpan(
+                  text: ' Tech Hub',
+                  style: GoogleFonts.spaceGrotesk(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: AppTheme.accent,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -260,30 +264,32 @@ class _NavItemState extends State<_NavItem> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 180),
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: widget.isActive ? FontWeight.w600 : FontWeight.w400,
-              color: highlighted ? AppTheme.accent : Colors.white.withOpacity(0.75),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(widget.label),
-                const SizedBox(height: 3),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: 2,
-                  width: widget.isActive ? 20 : 0,
-                  decoration: BoxDecoration(
-                    color: AppTheme.accent,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 180),
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: widget.isActive ? FontWeight.w600 : FontWeight.w400,
+                  color: highlighted
+                      ? AppTheme.accent
+                      : Colors.white.withOpacity(0.8),
                 ),
-              ],
-            ),
+                child: Text(widget.label),
+              ),
+              const SizedBox(height: 3),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 2,
+                width: widget.isActive ? 18 : 0,
+                decoration: BoxDecoration(
+                  color: AppTheme.accent,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -312,7 +318,9 @@ class _MobileNavItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: AppTheme.darkCardBorder.withOpacity(0.4)),
+            bottom: BorderSide(
+              color: AppTheme.darkCardBorder.withOpacity(0.35),
+            ),
           ),
         ),
         child: Row(
@@ -339,7 +347,9 @@ class _MobileNavItem extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios_rounded,
               size: 13,
-              color: isActive ? AppTheme.accent : Colors.white.withOpacity(0.3),
+              color: isActive
+                  ? AppTheme.accent
+                  : Colors.white.withOpacity(0.25),
             ),
           ],
         ),
@@ -352,8 +362,13 @@ class _MobileNavItem extends StatelessWidget {
 class _CtaButton extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
+  final bool fullWidth;
 
-  const _CtaButton({required this.label, required this.onTap});
+  const _CtaButton({
+    required this.label,
+    required this.onTap,
+    this.fullWidth = false,
+  });
 
   @override
   State<_CtaButton> createState() => _CtaButtonState();
@@ -372,7 +387,8 @@ class _CtaButtonState extends State<_CtaButton> {
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+          width: widget.fullWidth ? double.infinity : null,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: _hovered
@@ -392,6 +408,7 @@ class _CtaButtonState extends State<_CtaButton> {
           ),
           child: Text(
             widget.label,
+            textAlign: widget.fullWidth ? TextAlign.center : TextAlign.start,
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
