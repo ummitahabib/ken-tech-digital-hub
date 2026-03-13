@@ -190,29 +190,24 @@ class AppData {
   static const List<TeamMember> team = [
     TeamMember(
       name: 'Kenneth Raphael',
-      role: 'Founder & CEO',
+      role: 'General Manager',
       bio: 'Digital strategist with 8+ years helping Nigerian businesses succeed in the digital landscape.',
-      imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300',
+      imageUrl: 'assets/images/gm.jpg',
       linkedin: 'https://ng.linkedin.com/company/kendigitaltechhub',
     ),
     TeamMember(
-      name: 'Amaka Osei',
-      role: 'Head of Social Media',
+      name: 'Ahem Owudu',
+      role: 'Manager of Ken Digital Tech Hub',
       bio: 'Social media expert with a track record of growing brand accounts from zero to viral.',
-      imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=300',
+      imageUrl: 'assets/images/mn.jpg',
     ),
     TeamMember(
       name: 'Emeka Adeyemi',
-      role: 'Paid Ads Specialist',
+      role: 'Assitant Manager',
       bio: 'Google & Meta certified expert who has managed over \u20a650M in ad spend across Nigeria.',
-      imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300',
+      imageUrl: 'assets/images/as.jpg',
     ),
-    TeamMember(
-      name: 'Chidinma Okafor',
-      role: 'Content Lead',
-      bio: 'Creative director and storyteller passionate about authentic African brand narratives.',
-      imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300',
-    ),
+   
   ];
 
   static const List<Testimonial> testimonials = [

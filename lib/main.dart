@@ -3,13 +3,10 @@ import 'package:flutter/gestures.dart';
 import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
 
-void main() {
-  runApp(const KenDigitalTechHubApp());
-}
+void main() => runApp(const KenDigitalApp());
 
-class KenDigitalTechHubApp extends StatelessWidget {
-  const KenDigitalTechHubApp({super.key});
-
+class KenDigitalApp extends StatelessWidget {
+  const KenDigitalApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,22 +14,18 @@ class KenDigitalTechHubApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
       home: const HomeScreen(),
-      scrollBehavior: const _AppScrollBehavior(),
+      scrollBehavior: const _ScrollBehavior(),
     );
   }
 }
 
-class _AppScrollBehavior extends ScrollBehavior {
-  const _AppScrollBehavior();
-
+class _ScrollBehavior extends ScrollBehavior {
+  const _ScrollBehavior();
   @override
   Widget buildScrollbar(BuildContext ctx, Widget child, ScrollableDetails d) => child;
-
   @override
   Set<PointerDeviceKind> get dragDevices => {
-    PointerDeviceKind.touch,
-    PointerDeviceKind.mouse,
-    PointerDeviceKind.trackpad,
-    PointerDeviceKind.stylus,
+    PointerDeviceKind.touch, PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad, PointerDeviceKind.stylus,
   };
 }
